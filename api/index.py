@@ -1,6 +1,12 @@
-from vercel import Vercel
-from app import app as flask_app
+#!/usr/bin/env python3
+# api/index.py — Vercel Python serverless entry point
+import sys
+import os
 
-vercel_app = Vercel(flask_app)
+# Add project root to path so "from app import app" works
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-handler = vercel_app
+from app import app as application
+
+# Vercel Python runtime looks for "app" or "handler"
+app = application
