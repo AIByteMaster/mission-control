@@ -11,146 +11,112 @@
         <header>
             <h1>🚀 Mission Control</h1>
             <p class="subtitle">NexomateAI Operations Dashboard</p>
+            <p class="meta">Updated: {{ last_updated }} · Source: {{ data_source }}</p>
         </header>
 
         <div class="grid">
-            <!-- TO-DO Section -->
             <section class="card">
                 <h2>📋 To-Do</h2>
                 <div class="section-content">
+                    <div class="summary-row">
+                        <span>{{ todos.pending|length }} pending</span>
+                        <span>{{ todos.completed|length }} completed</span>
+                    </div>
                     {% if todos.pending %}
                     <h3>Pending Tasks</h3>
                     <ul class="todo-list">
                         {% for task in todos.pending %}
-                        <li class="pending">
-                            <span class="checkbox">☐</span>
-                            <span class="task-text">{{ task }}</span>
-                        </li>
+                        <li class="pending"><span class="checkbox">☐</span><span class="task-text">{{ task }}</span></li>
                         {% endfor %}
                     </ul>
                     {% else %}
                     <p class="empty">No pending tasks</p>
                     {% endif %}
-                    
+
                     {% if todos.completed %}
-                    <h3>Recently Completed</h3>
+                    <h3>Completed / Recently Done</h3>
                     <ul class="todo-list">
-                        {% for task in todos.completed[:5] %}
-                        <li class="completed">
-                            <span class="checkbox">☑</span>
-                            <span class="task-text">{{ task }}</span>
-                        </li>
+                        {% for task in todos.completed[:6] %}
+                        <li class="completed"><span class="checkbox">☑</span><span class="task-text">{{ task }}</span></li>
                         {% endfor %}
                     </ul>
                     {% endif %}
                 </div>
             </section>
 
-            <!-- GOALS Section -->
-            <section class="card">
+            <section class="card goals-card">
                 <h2>🎯 Goals</h2>
                 <div class="section-content">
+                    {% if goals %}
+                    <ul class="goal-list">
+                        {% for goal in goals %}
+                        <li class="goal-item {{ 'done' if goal.done else 'active' }}">
+                            <div class="goal-title">{{ '✅' if goal.done else '⬜' }} {{ goal.title }}</div>
+                            {% if goal.status %}<div class="goal-status">{{ goal.status }}</div>{% endif %}
+                            {% if goal.roadmap %}<div class="goal-roadmap">{{ goal.roadmap }}</div>{% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="empty">No goals data</p>
+                    {% endif %}
+
                     {% if goals_table %}
+                    <h3>Key Metrics</h3>
                     <table class="goals-table">
-                        <thead>
-                            <tr>
-                                <th>Goal</th>
-                                <th>Current</th>
-                                <th>Target</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>Goal</th><th>Current</th><th>Target</th><th>Status</th></tr></thead>
                         <tbody>
                             {% for row in goals_table %}
-                            <tr>
-                                <td>{{ row[0] }}</td>
-                                <td>{{ row[1] }}</td>
-                                <td>{{ row[2] }}</td>
-                                <td>{{ row[3] }}</td>
-                            </tr>
+                            <tr><td>{{ row[0] }}</td><td>{{ row[1] }}</td><td>{{ row[2] }}</td><td>{{ row[3] }}</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
-                    {% else %}
-                    <p class="empty">No goals data</p>
                     {% endif %}
                 </div>
             </section>
 
-            <!-- PROJECTS Section -->
             <section class="card">
                 <h2>📁 Projects</h2>
                 <div class="section-content">
                     <h3>Internal</h3>
                     <ul class="project-list">
                         {% for p in projects.internal %}
-                        <li>
-                            <span class="project-name">{{ p.name }}</span>
-                            <span class="project-desc">{{ p.desc }}</span>
-                            <span class="project-status status-{{ p.status|lower }}">{{ p.status }}</span>
-                        </li>
+                        <li><span class="project-name">{{ p.name }}</span><span class="project-desc">{{ p.desc }}</span><span class="project-status status-{{ p.status|lower }}">{{ p.status }}</span></li>
                         {% endfor %}
                     </ul>
-                    
                     <h3>External</h3>
                     <ul class="project-list">
                         {% for p in projects.external %}
-                        <li>
-                            <span class="project-name">{{ p.name }}</span>
-                            <span class="project-desc">{{ p.desc }}</span>
-                            <span class="project-status status-{{ p.status|lower }}">{{ p.status }}</span>
-                        </li>
+                        <li><span class="project-name">{{ p.name }}</span><span class="project-desc">{{ p.desc }}</span><span class="project-status status-{{ p.status|lower }}">{{ p.status }}</span></li>
                         {% endfor %}
                     </ul>
                 </div>
             </section>
 
-            <!-- SYSTEM HEALTH Section -->
             <section class="card">
                 <h2>🔧 System Health</h2>
                 <div class="section-content">
+                    {% for service in health %}
                     <div class="health-item">
-                        <span class="service-name">Nextcloud</span>
-                        <span class="service-status checking">Checking...</span>
+                        <span class="service-name">{{ service.name }}</span>
+                        <span class="service-status {{ service.class }}">{{ service.status }} <small>{{ service.detail }}</small></span>
                     </div>
-                    <div class="health-item">
-                        <span class="service-name">Website (nexomateai.com)</span>
-                        <span class="service-status checking">Checking...</span>
-                    </div>
-                    <div class="health-item">
-                        <span class="service-name">Fiverr Gigs</span>
-                        <span class="service-status checking">Checking...</span>
-                    </div>
-                    <p class="health-note">Status checks run via cron job</p>
+                    {% endfor %}
+                    <p class="health-note">Checked server-side when the page loads.</p>
                 </div>
             </section>
 
-            <!-- EARNINGS Section -->
             <section class="card earnings-card">
                 <h2>💰 Earnings</h2>
                 <div class="section-content">
                     {% if has_earnings %}
                     <div class="earnings-grid">
-                        <div class="earnings-stat">
-                            <span class="stat-label">Total Earned</span>
-                            <span class="stat-value">${{ earnings.total_earned|default('0') }}</span>
-                        </div>
-                        <div class="earnings-stat">
-                            <span class="stat-label">Expenses</span>
-                            <span class="stat-value">${{ earnings.expenses|default('0') }}</span>
-                        </div>
-                        <div class="earnings-stat">
-                            <span class="stat-label">Net Earnings</span>
-                            <span class="stat-value">${{ earnings.net_earnings|default('0') }}</span>
-                        </div>
-                        <div class="earnings-stat">
-                            <span class="stat-label">Withdrawn</span>
-                            <span class="stat-value">${{ earnings.withdrawn|default('0') }}</span>
-                        </div>
-                        <div class="earnings-stat">
-                            <span class="stat-label">Pending</span>
-                            <span class="stat-value">${{ earnings.pending|default('0') }}</span>
-                        </div>
+                        <div class="earnings-stat"><span class="stat-label">Total Earned</span><span class="stat-value">${{ earnings.total_earned|default('0') }}</span></div>
+                        <div class="earnings-stat"><span class="stat-label">Expenses</span><span class="stat-value">${{ earnings.expenses|default('0') }}</span></div>
+                        <div class="earnings-stat"><span class="stat-label">Net Earnings</span><span class="stat-value">${{ earnings.net_earnings|default('0') }}</span></div>
+                        <div class="earnings-stat"><span class="stat-label">Withdrawn</span><span class="stat-value">${{ earnings.withdrawn|default('0') }}</span></div>
+                        <div class="earnings-stat"><span class="stat-label">Available</span><span class="stat-value">${{ earnings.balance|default('0') }}</span></div>
+                        <div class="earnings-stat"><span class="stat-label">Pending</span><span class="stat-value">${{ earnings.pending|default('0') }}</span></div>
                     </div>
                     {% else %}
                     <p class="empty">No earnings data available</p>
@@ -159,14 +125,8 @@
             </section>
         </div>
 
-        <footer>
-            <p>Mission Control — Auto-refreshes every 5 minutes</p>
-        </footer>
+        <footer><p>Mission Control — auto-refreshes every 5 minutes</p></footer>
     </div>
-
-    <script>
-        // Auto-refresh every 5 minutes
-        setTimeout(() => location.reload(), 5 * 60 * 1000);
-    </script>
+    <script>setTimeout(() => location.reload(), 5 * 60 * 1000);</script>
 </body>
 </html>
