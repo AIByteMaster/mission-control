@@ -26,7 +26,7 @@
                     <h3>Pending Tasks</h3>
                     <ul class="todo-list">
                         {% for task in todos.pending %}
-                        <li class="pending"><span class="checkbox">☐</span><span class="task-text">{{ task }}</span></li>
+                        <li class="pending"><span class="checkbox">☐</span><span class="task-text">{{ task.text }}<span class="item-date">Added {{ task.added }}</span></span></li>
                         {% endfor %}
                     </ul>
                     {% else %}
@@ -37,7 +37,7 @@
                     <h3>Completed / Recently Done</h3>
                     <ul class="todo-list">
                         {% for task in todos.completed[:6] %}
-                        <li class="completed"><span class="checkbox">☑</span><span class="task-text">{{ task }}</span></li>
+                        <li class="completed"><span class="checkbox">☑</span><span class="task-text">{{ task.text }}<span class="item-date">Added {{ task.added }}</span></span></li>
                         {% endfor %}
                     </ul>
                     {% endif %}
@@ -52,6 +52,7 @@
                         {% for goal in goals %}
                         <li class="goal-item {{ 'done' if goal.done else 'active' }}">
                             <div class="goal-title">{{ '✅' if goal.done else '⬜' }} {{ goal.title }}</div>
+                            <div class="item-date">Started {{ goal.started or 'Unknown' }}{% if goal.target_date %} · Target {{ goal.target_date }}{% endif %}</div>
                             {% if goal.status %}<div class="goal-status">{{ goal.status }}</div>{% endif %}
                             {% if goal.roadmap %}<div class="goal-roadmap">{{ goal.roadmap }}</div>{% endif %}
                         </li>
@@ -81,13 +82,13 @@
                     <h3>Internal</h3>
                     <ul class="project-list">
                         {% for p in projects.internal %}
-                        <li><span class="project-name">{{ p.name }}</span><span class="project-desc">{{ p.desc }}</span><span class="project-status status-{{ p.status|lower }}">{{ p.status }}</span></li>
+                        <li><span class="project-name">{{ p.name }}<span class="item-date">Added {{ p.added }}</span></span><span class="project-desc">{{ p.desc }}</span><span class="project-status status-{{ p.status|lower }}">{{ p.status }}</span></li>
                         {% endfor %}
                     </ul>
                     <h3>External</h3>
                     <ul class="project-list">
                         {% for p in projects.external %}
-                        <li><span class="project-name">{{ p.name }}</span><span class="project-desc">{{ p.desc }}</span><span class="project-status status-{{ p.status|lower }}">{{ p.status }}</span></li>
+                        <li><span class="project-name">{{ p.name }}<span class="item-date">Added {{ p.added }}</span></span><span class="project-desc">{{ p.desc }}</span><span class="project-status status-{{ p.status|lower }}">{{ p.status }}</span></li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -108,6 +109,7 @@
 
             <section class="card earnings-card">
                 <h2>💰 Earnings</h2>
+                <div class="item-date card-date">Updated {{ last_updated }}</div>
                 <div class="section-content">
                     {% if has_earnings %}
                     <div class="earnings-grid">

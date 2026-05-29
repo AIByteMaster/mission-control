@@ -38,18 +38,30 @@ def extract_last_updated(*contents):
     return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
 
+def split_inline_date(text, fallback="Unknown"):
+    """Extract `(added: YYYY-MM-DD)` metadata without showing raw markup."""
+    date_match = re.search(r"\s*[\[(]added:\s*([0-9]{4}-[0-9]{2}-[0-9]{2})[\])]", text, flags=re.I)
+    added = date_match.group(1) if date_match else fallback
+    if date_match:
+        text = (text[:date_match.start()] + text[date_match.end():]).strip()
+    return text, added
+
+
 def parse_todos(*contents):
     todos = {"pending": [], "completed": []}
     for content in contents:
+        fallback_date = extract_last_updated(content)
         for line in content.splitlines():
             match = re.match(r"^\s*-\s+\[([ xX])\]\s+(.+?)\s*$", line)
             if not match:
                 continue
             task = re.sub(r"\s+\(pending\)\s*$", "", match.group(2).strip())
+            task, added = split_inline_date(task, fallback_date)
+            item = {"text": task, "added": added}
             if match.group(1).lower() == "x":
-                todos["completed"].append(task)
+                todos["completed"].append(item)
             else:
-                todos["pending"].append(task)
+                todos["pending"].append(item)
     return todos
 
 
@@ -153,15 +165,15 @@ def index():
 
     projects = {
         "internal": [
-            {"name": "NexomateAI", "desc": "AI automation for insurance agencies", "status": "Active"},
-            {"name": "Mission Control", "desc": "Live operations dashboard", "status": "Active"},
-            {"name": "Task-inbox", "desc": "Telegram task tracker", "status": "Active"},
-            {"name": "Bella-generalagent", "desc": "General agent assistant", "status": "Active"},
-            {"name": "VPS/Nextcloud", "desc": "Self-hosted cloud infrastructure", "status": "Active"},
+            {"name": "NexomateAI", "desc": "AI automation for insurance agencies", "status": "Active", "added": "2026-05-24"},
+            {"name": "Mission Control", "desc": "Live operations dashboard", "status": "Active", "added": "2026-05-27"},
+            {"name": "Task-inbox", "desc": "Telegram task tracker", "status": "Active", "added": "2026-05-27"},
+            {"name": "Bella-generalagent", "desc": "General agent assistant", "status": "Active", "added": "2026-05-27"},
+            {"name": "VPS/Nextcloud", "desc": "Self-hosted cloud infrastructure", "status": "Active", "added": "2026-05-27"},
         ],
         "external": [
-            {"name": "Fiverr Gigs", "desc": "7 active gigs, AI automation focus", "status": "Active"},
-            {"name": "X Brand", "desc": "Grow audience → NexomateAI clients", "status": "Active"},
+            {"name": "Fiverr Gigs", "desc": "7 active gigs, AI automation focus", "status": "Active", "added": "2026-05-24"},
+            {"name": "X Brand", "desc": "Grow audience → NexomateAI clients", "status": "Active", "added": "2026-05-24"},
         ],
     }
 
