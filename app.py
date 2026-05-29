@@ -139,6 +139,22 @@ def parse_fiverr_earnings(content):
     return data
 
 
+def parse_projects(content):
+    projects = {"internal": [], "external": []}
+    for line in content.splitlines():
+        match = re.match(r"^-\s+\[([^\]]+)\]\s+([^|]+)\|\s*([^|]+)\|\s*added:\s*([0-9]{4}-[0-9]{2}-[0-9]{2})\s*\|\s*group:\s*(internal|external)", line.strip(), flags=re.I)
+        if not match:
+            continue
+        status, name, desc, added, group = match.groups()
+        projects[group.lower()].append({
+            "name": name.strip(),
+            "desc": desc.strip(),
+            "status": status.strip(),
+            "added": added.strip(),
+        })
+    return projects if (projects["internal"] or projects["external"]) else None
+
+
 def check_url(name, url):
     try:
         req = urllib.request.Request(url, headers={"User-Agent": "MissionControl/1.0"})
@@ -157,13 +173,14 @@ def index():
     todo_archive = read_md("todo/ARCHIVE.md")
     goals_active = read_md("goals/ACTIVE.md")
     earnings_content = read_md("fiverr/fiverr-earnings.md")
+    projects_content = read_md("projects/ACTIVE.md")
 
     todos = parse_todos(todo_active, todo_archive)
     goals = parse_goals(goals_active)
     goals_table = parse_goals_table(goals_active)
     earnings = parse_fiverr_earnings(earnings_content)
 
-    projects = {
+    projects = parse_projects(projects_content) or {
         "internal": [
             {"name": "NexomateAI", "desc": "AI automation for insurance agencies", "status": "Active", "added": "2026-05-24"},
             {"name": "Mission Control", "desc": "Live operations dashboard", "status": "Active", "added": "2026-05-27"},
